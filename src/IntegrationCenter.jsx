@@ -21,7 +21,8 @@ const adapterLabel=s=>({
   PENDING_PARTNER_API:"Partner-API noch nicht aktiviert",
   PENDING_ADAPTER:"Live-Adapter noch nicht aktiviert",
   PENDING_OAUTH:"OAuth-Anbindung noch nicht aktiviert",
-  PENDING_CUSTOM_ADAPTER:"Eigener Adapter noch nicht aktiviert"
+  PENDING_CUSTOM_ADAPTER:"Eigener Adapter noch nicht aktiviert",
+  READY_PROVIDER_ADAPTER:"KI-Provider-Adapter bereit"
 }[s]||s);
 
 export default function IntegrationCenter({adminKey,setAdminKey}){
