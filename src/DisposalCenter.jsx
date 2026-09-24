@@ -1,4 +1,5 @@
 import React,{useEffect,useMemo,useState}from"react";
+import"./DisposalCenter.css";
 
 const routeLabel=s=>({
   SCRAP_VALUE:"Schrott / Wertstoff",
