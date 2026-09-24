@@ -1,4 +1,5 @@
 import React,{useEffect,useMemo,useState}from"react";
+import ServiceIntelligence,{FleetRadar} from"./ServiceIntelligence";
 
 const request=async(path,key,options={})=>{
   const r=await fetch("/api"+path,{...options,headers:{...(options.headers||{}),Authorization:"Bearer "+key}});
@@ -87,12 +88,13 @@ export default function ServiceCenter({adminKey,setAdminKey}){
       <article><small>WARTUNG / PRÜFUNG</small><h3>{data.metrics.dueOrAttention}</h3><p>benötigen Aufmerksamkeit</p></article>
       <article><small>OFFENE HINWEISE</small><h3>{data.metrics.openAlerts}</h3><p>Störung oder Wartungshinweis</p></article>
     </div>
+    <FleetRadar data={data}/>
     <div className="service-readiness"><div><span className={data.provider.partnerApiCredentialsPresent?"pulse-dot":"status-dot-muted"}/><b>Vaillant Partner API</b><span>{data.provider.partnerApiCredentialsPresent?"Zugangsdaten vorbereitet":"Freischaltung/Zugang noch ausstehend"}</span></div><p>Das Service Center funktioniert bereits für Kunden-, Anlagen- und Wartungsverwaltung. Live-Synchronisierung startet erst nach Vaillant-API-Freischaltung.</p></div>
     <div className="service-layout">
       <div>
         <div className="service-list-head"><div><small>ANLAGENPARK</small><h3>{visible.length} Kundenanlagen</h3></div><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Kunde, PLZ, Modell, Seriennummer"/></div>
         <div className="service-list">{visible.map(x=><button key={x.projectId} className={"plant-row "+(selectedId===x.projectId?"active":"")} onClick={()=>{setSelectedId(x.projectId);setConfigGatewayId("");setConfigInstallationId("")}}>
-          <div className="plant-avatar">V</div><div className="plant-main"><strong>{x.customer.name}</strong><span>{x.plant.model} · {x.plant.serialNumber}</span><small>{x.customer.postalCode} · {connectionLabel(x.remoteService&&x.remoteService.connectionStatus)}</small></div><div className={"maintenance-pill "+String(x.remoteService&&x.remoteService.maintenance&&x.remoteService.maintenance.status||"").toLowerCase()}>{maintenanceLabel(x.remoteService&&x.remoteService.maintenance&&x.remoteService.maintenance.status)}</div>
+          <div className="plant-avatar">V</div><div className="plant-main"><strong>{x.customer.name}</strong><span>{x.plant.model} · {x.plant.serialNumber}</span><small>{x.customer.postalCode} · {connectionLabel(x.remoteService&&x.remoteService.connectionStatus)}</small></div><div className="plant-row-status"><div className={"health-mini "+String(x.health&&x.health.status||"no_data").toLowerCase()}>{x.health&&x.health.label||"keine Daten"}</div><div className={"maintenance-pill "+String(x.remoteService&&x.remoteService.maintenance&&x.remoteService.maintenance.status||"").toLowerCase()}>{maintenanceLabel(x.remoteService&&x.remoteService.maintenance&&x.remoteService.maintenance.status)}</div></div>
         </button>)}</div>
       </div>
       <div className="form service-onboarding">
@@ -125,6 +127,7 @@ export default function ServiceCenter({adminKey,setAdminKey}){
           <p className="service-disclaimer">{selected.technician.safetyNotice}</p>
         </>}
       </div>
+      <ServiceIntelligence selected={selected} action={action}/>
       {selected.remoteService&&selected.remoteService.alerts&&selected.remoteService.alerts.length>0&&<><h3>Offene Hinweise</h3><div className="ops">{selected.remoteService.alerts.map(a=><article key={a.id}><small>{a.severity.toUpperCase()} · {a.kind}</small><h3>{a.message}</h3><p>{new Date(a.openedAt).toLocaleString("de-DE")}</p><button onClick={()=>ack(a.id)}>Als geprüft markieren</button></article>)}</div></>}
       <div className="split"><div className="form"><h3>Wartung dokumentieren</h3><label>Durchgeführt am<input type="datetime-local" value={serviceDate} onChange={e=>setServiceDate(e.target.value)}/></label><label>Servicebericht<textarea value={serviceReport} onChange={e=>setServiceReport(e.target.value)} placeholder="Prüfungen, Messwerte, Arbeiten, Befund"/></label><label>Nachweis / Referenz<input value={serviceReference} onChange={e=>setServiceReference(e.target.value)}/></label><button disabled={!serviceDate||!serviceReport.trim()||!serviceReference.trim()} onClick={recordService}>Wartung abschließen →</button><p>Der nächste Wartungstermin wird anschließend automatisch aus dem Intervall berechnet.</p></div>
       <div className="form"><h3>Vaillant-Verknüpfung</h3><p>Nur die System-/Gateway-Zuordnung wird hier gespeichert. API-Zugangsdaten bleiben verschlüsselt unter „Werkzeuge“.</p><label>Gateway-ID<input value={configGatewayId} onChange={e=>setConfigGatewayId(e.target.value)} placeholder="myVAILLANT connect / Gateway ID"/></label><label>Vaillant Installations-/System-ID<input value={configInstallationId} onChange={e=>setConfigInstallationId(e.target.value)} placeholder="Nach Partner-API-Zuordnung"/></label><button disabled={!configGatewayId&&!configInstallationId} onClick={saveLink}>Verknüpfung speichern</button><p>Keine Fernsteuerung wird automatisch ausgeführt. Auch eine Kundeneinwilligung autorisiert allein keinen API-Schreibzugriff.</p></div></div>
