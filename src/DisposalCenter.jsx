@@ -76,7 +76,7 @@ export default function DisposalCenter({adminKey,setAdminKey}){
   }
   async function assignPartner(){
     if(!selectedItem||!selectedPartnerId)return;
-    try{const p=data.projects.find(x=>x.id===selectedItem.projectId);await projectAction(selectedItem.projectId,p.version,"disposal_assign_partner",{itemId:selectedItem.id,partnerId:selectedPartnerId,plannedPickupAt:pickupAt?new Date(pickupAt).toISOString():undefined,reference:assignmentRef,coverageConfirmed:true});setMessage("Partner wurde der Position zugeordnet.");setAssignmentRef("");setPickupAt("")}catch{}
+    try{const p=data.projects.find(x=>x.id===selectedItem.projectId);await projectAction(selectedItem.projectId,p.version,"disposal_assign_partner",{itemId:selectedItem.id,partnerId:selectedPartnerId,plannedPickupAt:pickupAt?new Date(pickupAt).toISOString():undefined,reference:assignmentRef});setMessage("Partner wurde der Position zugeordnet.");setAssignmentRef("");setPickupAt("")}catch{}
   }
   async function completeItem(){
     if(!selectedItem)return;
