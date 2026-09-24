@@ -4,6 +4,28 @@ const money=cents=>cents==null?null:(Number(cents)/100).toLocaleString("de-DE",{
 const priceLabel=t=>({sale_price:"Verkaufspreis",uvp:"UVP",reference:"Referenzpreis",partner_required:"Fachpartnerpreis"}[t]||"Preis");
 const plannedBrands=["Vaillant","Geberit","GROHE","hansgrohe","Duravit","sanibel","comfort by sanibel"];
 
+const GENERATED_VISUALS={
+  heatpump:"/product-images/vaillant-heatpump-illustration.webp",
+  tower:"/product-images/vaillant-indoor-tower-illustration.webp",
+  boiler:"/product-images/vaillant-boiler-illustration.webp",
+  controller:"/product-images/vaillant-controller-illustration.webp",
+  ventilation:"/product-images/vaillant-ventilation-illustration.webp",
+  storage:"/product-images/vaillant-storage-illustration.webp"
+};
+const generatedVisual=p=>{
+  if(p?.brand!=="Vaillant")return null;
+  const title=String(p.title||"");
+  if(/senso|calorMATIC|multiMATIC|myVAILLANT/i.test(title))return GENERATED_VISUALS.controller;
+  if(/aroSTOR|uniSTOR|allSTOR|actoSTOR|eloSTOR|fluoSTOR|Pufferspeicher/i.test(title)||p.category==="Speicher")return GENERATED_VISUALS.storage;
+  if(p.category==="Lüftung")return GENERATED_VISUALS.ventilation;
+  if(/COMPACT|flexoTHERM|geoTHERM/i.test(title))return GENERATED_VISUALS.tower;
+  if(p.category==="Wärmepumpen")return GENERATED_VISUALS.heatpump;
+  if(p.category==="Heizung & Regelung")return GENERATED_VISUALS.boiler;
+  return null;
+};
+const visualFor=p=>p?.imageUrl||generatedVisual(p);
+const isGeneratedVisual=p=>!p?.imageUrl&&!!generatedVisual(p);
+
 export default function Shop({products=[],api,onProjectCreated}){
   const[q,setQ]=useState(""),[category,setCategory]=useState("Alle"),[brand,setBrand]=useState("Alle"),[sort,setSort]=useState("featured"),
   [cart,setCart]=useState(()=>{try{return JSON.parse(localStorage.getItem("richterich-shop-cart")||"[]")}catch{return []}}),
@@ -44,7 +66,7 @@ export default function Shop({products=[],api,onProjectCreated}){
 
   return <section className="shop-shell">
     <div className="shop-hero">
-      <div><small>RICHTERICH SHOP · ORIGINAL MARKENPRODUKTE</small><h2>Sanitär & Haustechnik.<br/><em>Mit echten Produktdaten.</em></h2><p>Originalprodukte, aktuelle Preise, Bilder und Verfügbarkeit werden aus bestätigten Lieferanten- und Herstellerdaten übernommen. Heiztechnik bleibt konsequent auf Vaillant ausgerichtet.</p></div>
+      <div><small>RICHTERICH SHOP · ORIGINAL MARKENPRODUKTE</small><h2>Sanitär & Haustechnik.<br/><em>Mit echten Produktdaten.</em></h2><p>Originalprodukte und verifizierte Produktdaten bilden die Basis. Wo offizielle Herstellerbilder noch nicht freigegeben sind, zeigen wir klar gekennzeichnete Visualisierungen. Heiztechnik bleibt konsequent auf Vaillant ausgerichtet.</p></div>
       <div className="shop-stat">
         <div><span>Live-Artikel</span><b>{products.length}</b></div>
         <div><span>Marken</span><b>{new Set(products.map(p=>p.brand)).size}</b></div>
@@ -67,8 +89,9 @@ export default function Shop({products=[],api,onProjectCreated}){
 
       <div className="shop-grid">{visible.map(p=><article key={p.id} className="shop-card">
         <button className="shop-image" onClick={()=>setDetail(p)} aria-label={(p.title||"Produkt")+" öffnen"}>
-          {p.imageUrl?<img src={p.imageUrl} alt={p.title} loading="lazy"/>:<div className="image-missing"><b>{p.brand?.slice(0,1)||"R"}</b><span>Originalbild folgt aus Lieferantenfeed</span></div>}
+          {visualFor(p)?<img className={isGeneratedVisual(p)?"generated-product-image":""} src={visualFor(p)} alt={isGeneratedVisual(p)?(p.title+" – visualisierte Produktdarstellung"):p.title} loading="lazy"/>:<div className="image-missing"><b>{p.brand?.slice(0,1)||"R"}</b><span>Originalbild folgt aus Lieferantenfeed</span></div>}
           {p.badge&&<span className="product-badge">{p.badge}</span>}
+          {isGeneratedVisual(p)&&<span className="illustration-badge">Visualisierung</span>}
         </button>
         <div className="shop-card-copy"><small>{p.category} · {p.brand}</small><h3>{p.title}</h3><p className="sku">{p.manufacturerNumber||p.sku}</p>
           <div className="price-line"><div><span>{priceLabel(p.priceType)}</span><strong>{money(p.priceGrossCents)||"auf Anfrage"}</strong></div><span className={p.priceStatus==="confirmed"?"price-ok":"price-warn"}>{p.priceStatus==="confirmed"?"aktuell geprüft":p.priceStatus==="partner_required"?"Fachpartnerpreis":"erneut prüfen"}</span></div>
@@ -81,8 +104,8 @@ export default function Shop({products=[],api,onProjectCreated}){
 
     {detail&&<div className="modal-backdrop" onClick={()=>setDetail(null)}><div className="product-modal" onClick={e=>e.stopPropagation()}>
       <button className="modal-close" onClick={()=>setDetail(null)}>×</button>
-      <div className="product-modal-media">{detail.imageUrl?<img src={detail.imageUrl} alt={detail.title}/>:<div className="image-missing large"><b>{detail.brand?.slice(0,1)}</b></div>}</div>
-      <div className="product-modal-copy"><small>{detail.category} · {detail.brand}</small><h2>{detail.title}</h2><p>{detail.description}</p>
+      <div className="product-modal-media">{visualFor(detail)?<img className={isGeneratedVisual(detail)?"generated-product-image":""} src={visualFor(detail)} alt={isGeneratedVisual(detail)?(detail.title+" – visualisierte Produktdarstellung"):detail.title}/>:<div className="image-missing large"><b>{detail.brand?.slice(0,1)}</b></div>}{isGeneratedVisual(detail)&&<span className="illustration-badge modal-illustration-badge">Visualisierung</span>}</div>
+      <div className="product-modal-copy"><small>{detail.category} · {detail.brand}</small><h2>{detail.title}</h2><p>{detail.description}</p>{isGeneratedVisual(detail)&&<p className="visual-note">KI-erstellte Produktvisualisierung zur Orientierung. Sie ist keine verbindliche Originalabbildung; ein freigegebenes Herstellerbild ersetzt sie automatisch, sobald es im Produktfeed vorliegt.</p>}
         <div className="detail-price"><span>{priceLabel(detail.priceType)}</span><strong>{money(detail.priceGrossCents)||"auf Anfrage"}</strong></div>
         <div className="detail-facts"><div><span>Verfügbarkeit</span><b>{detail.availability}</b></div><div><span>Lieferant</span><b>{detail.supplier}</b></div>{detail.manufacturerNumber&&<div><span>Hersteller-Nr.</span><b>{detail.manufacturerNumber}</b></div>}{detail.ean&&<div><span>EAN/GTIN</span><b>{detail.ean}</b></div>}</div>
         {detail.specs?.length>0&&<div className="spec-list">{detail.specs.map((s,i)=><div key={i}><span>{s.label}</span><b>{s.value}</b></div>)}</div>}
@@ -94,7 +117,7 @@ export default function Shop({products=[],api,onProjectCreated}){
     {checkout&&<div className="modal-backdrop" onClick={()=>setCheckout(false)}><div className="cart-drawer" onClick={e=>e.stopPropagation()}>
       <div className="cart-head"><div><small>WARENKORB</small><h3>{cartLines.length} Positionen</h3></div><button className="modal-close inline" onClick={()=>setCheckout(false)}>×</button></div>
       <div className="cart-lines">{cartLines.length?cartLines.map(({product,line})=><div className="cart-line" key={product.id}>
-        <div className="cart-thumb">{product.imageUrl?<img src={product.imageUrl} alt=""/>:<b>{product.brand?.slice(0,1)}</b>}</div>
+        <div className="cart-thumb">{visualFor(product)?<img className={isGeneratedVisual(product)?"generated-product-image":""} src={visualFor(product)} alt=""/>:<b>{product.brand?.slice(0,1)}</b>}</div>
         <div><strong>{product.title}</strong><span>{product.brand} · {money(product.priceGrossCents)||"Preis auf Anfrage"}</span></div>
         <div className="qty"><button onClick={()=>qty(product.id,line.quantity-1)}>−</button><span>{line.quantity}</span><button onClick={()=>qty(product.id,line.quantity+1)}>+</button></div>
       </div>):<p>Ihr Warenkorb ist leer.</p>}</div>
