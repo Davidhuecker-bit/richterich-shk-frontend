@@ -3,6 +3,7 @@ import Shop from"./ShopCore";
 import{shopDesignCandidates}from"./shopDesignCandidates";
 import{shopWorlds,shopIntents,worldProducts as productsForWorld}from"./shopWorlds";
 import"./PremiumShop.css";
+import"./ShopWorlds.css";
 
 const heroImage="/product-images/vaillant-heatpump-illustration.webp";
 const candidateGlyph=v=>({basin:"⌒",wc:"◡",tap:"⌁",frame:"▥",storage:"◫",pump:"◉",shower:"╱",drain:"═"}[v]||"◇");
