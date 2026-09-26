@@ -1,0 +1,13 @@
+.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-art{background-position:center;background-repeat:no-repeat;background-size:cover;isolation:isolate}
+.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-art::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(11,20,16,.04) 35%,rgba(11,20,16,.28) 100%);pointer-events:none}
+.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-art>span,.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-art>small{z-index:2;padding:6px 8px;border-radius:999px;background:rgba(248,248,244,.84);backdrop-filter:blur(10px);color:#263b31;box-shadow:0 6px 18px rgba(20,32,27,.08)}
+.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-glyph{display:none}
+.ps-pilot-grid>article:nth-child(1) .ps-candidate-art{background-image:url('/product-images/sanibel-1001-plus-waschtisch.webp')}
+.ps-pilot-grid>article:nth-child(2) .ps-candidate-art{background-image:url('/product-images/sanibel-1001-plus-wc.webp')}
+.ps-pilot-grid>article:nth-child(3) .ps-candidate-art{background-image:url('/product-images/grohe-plus-waschtischarmatur.webp')}
+.ps-pilot-grid>article:nth-child(4) .ps-candidate-art{background-image:url('/product-images/geberit-duofix-wc-element.webp');background-size:contain;background-color:#e9e9e7}
+.ps-pilot-grid>article:nth-child(5) .ps-candidate-art{background-image:url('/product-images/comfort-wps-e-speicher.webp');background-size:contain;background-color:#f0f0ee}
+.ps-pilot-grid>article:nth-child(6) .ps-candidate-art{background-image:url('/product-images/comfort-pumpengruppe.webp');background-size:contain;background-color:#f3f2ed}
+.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-art{transition:background-size .35s ease,filter .35s ease}
+.ps-pilot-grid>article:nth-child(-n+3):hover .ps-candidate-art{background-size:105%}
+@media(max-width:700px){.ps-pilot-grid>article:nth-child(-n+6) .ps-candidate-art{height:250px}}
