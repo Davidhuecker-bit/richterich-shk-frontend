@@ -1,5 +1,5 @@
 import React,{useMemo,useState}from"react";
-import Shop from"./Shop";
+import Shop from"./ShopCore";
 import{shopDesignCandidates}from"./shopDesignCandidates";
 import"./PremiumShop.css";
 
